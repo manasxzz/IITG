@@ -1,0 +1,6 @@
+error: 2 datasets; 2nd dataset's deviation from previous dataset; stimulated curve points deviation error; montecarlo analysis
+phi graph
+residue number instead of data
+fitted curve instead of lbgill
+times new roman 12 uniform
+carver richards model

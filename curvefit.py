@@ -47,7 +47,7 @@ def plot_fit(freq, r2_eff, popt):
 
 # ---- 5. Main ----
 def main():
-    file_path = "D:\IITG\sample2.xlsx"  
+    file_path = "r2_results.xlsx"  
     freq, r2_eff = load_data(file_path)
     popt, pcov = fit_r2_data(freq, r2_eff)
     print(f"Fitted parameters:\nR2 = {popt[0]:.2f}\nkex = {popt[1]:.2f}\nphi = {popt[2]:.5f}")
