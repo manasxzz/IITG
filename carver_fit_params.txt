@@ -1,6 +1,0 @@
-Fitted Parameters (with 1σ uncertainties):
-
-R2 = 1.3566e-29 ± 0.0621036
-k_AB = 0.001 ± 0.0056305
-k_BA = 0.001 ± 0.0056305
-Δδ (ppm) = 0.01 ± 1104.73

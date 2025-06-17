@@ -1,6 +1,0 @@
-Fitted Parameters (with 1σ uncertainties):
-
-R2 = 2.44201e-08 ± 1003.11
-k_ex = 138.68 ± 794.341
-pA = 0.116063 ± 2.16695
-delta_omega = 2099.49 ± 202.726

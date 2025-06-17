@@ -1,0 +1,5 @@
+Fitted Parameters for 15Lys336Met339Phe348Ile (with 1σ uncertainties):
+
+R2 = 28.631 ± 0.0729509
+k_ex = 670.151 ± 88.5333
+phi = 0.0160442 ± 0.00118119

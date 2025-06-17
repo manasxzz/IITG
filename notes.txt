@@ -4,3 +4,4 @@ residue number instead of data
 fitted curve instead of lbgill
 times new roman 12 uniform
 carver richards model
+ppt on chemex guide
