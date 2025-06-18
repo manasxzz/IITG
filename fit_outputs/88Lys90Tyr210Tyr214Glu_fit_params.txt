@@ -1,5 +1,0 @@
-Fitted Parameters for 88Lys90Tyr210Tyr214Glu (with 1σ uncertainties):
-
-R2 = 27.1447 ± 0.0642793
-k_ex = 1217.87 ± 124.45
-phi = 0.0202023 ± 0.0016633

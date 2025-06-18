@@ -1,5 +1,0 @@
-Fitted Parameters for 152Gln201Asn224Met (with 1σ uncertainties):
-
-R2 = 25.7599 ± 0.116721
-k_ex = 1111.02 ± 159.914
-phi = 0.0258386 ± 0.0028512
