@@ -8,7 +8,8 @@ from scipy.optimize import curve_fit
 # Set font
 plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams['font.size'] = 12
-rcParams.update({'axes.titlesize': 12, 'axes.labelsize': 12, 'legend.fontsize': 12})
+rcParams.update(
+    {'axes.titlesize': 12, 'axes.labelsize': 12, 'legend.fontsize': 12})
 
 st.set_page_config(layout="centered")
 
@@ -53,16 +54,21 @@ st.latex(r"""
 \zeta = 4\pi \Delta\delta B_0 (k_{AB} - k_{BA})
 """)
 
-st.markdown("<i>Carver–Richards fit uses full four-parameter expression including $k_{AB}$, $k_{BA}$, and $\Delta \delta$</i>", unsafe_allow_html=True)
+st.markdown(
+    "<i>Carver–Richards fit uses full four-parameter expression including $k_{AB}$, $k_{BA}$, and $\Delta \delta$</i>", unsafe_allow_html=True)
 
 # Upload CSV
-uploaded_file = st.file_uploader("\U0001F4C1 Upload CSV with columns: AminoAcid, Frequency, R2eff, R2eff_error", type="csv")
+uploaded_file = st.file_uploader(
+    "\U0001F4C1 Upload CSV with columns: AminoAcid, Frequency, R2eff, R2eff_error", type="csv")
 
 # Fit models
+
+
 def luz_meiboom(v_cpmg, R2, k_ex, phi, B0=81.0):
     Phi = 4 * np.pi**2 * B0**2 * phi
     term = (4 * v_cpmg) / k_ex
     return R2 + (Phi / k_ex) * (1 - term * np.tanh(k_ex / (4 * v_cpmg)))
+
 
 def carver_richards(v_cpmg, R2, k_AB, k_BA, delta_ppm, B0=81.0):
     delta = 2 * np.pi * delta_ppm * B0
@@ -75,8 +81,9 @@ def carver_richards(v_cpmg, R2, k_AB, k_BA, delta_ppm, B0=81.0):
     D_plus = 0.5 * (1 + (psi + 2 * delta**2) / sqrt_term)
     D_minus = 0.5 * (-1 + (psi + 2 * delta**2) / sqrt_term)
     lambda_val = np.sqrt(D_plus * np.cosh(xi)**2 - D_minus * np.cos(eta)**2) + \
-                 np.sqrt(D_plus * np.sinh(xi)**2 + D_minus * np.sin(eta)**2)
+        np.sqrt(D_plus * np.sinh(xi)**2 + D_minus * np.sin(eta)**2)
     return R2 + kex / 2 - 2 * v_cpmg * np.log(lambda_val)
+
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
@@ -86,7 +93,8 @@ if uploaded_file:
         st.stop()
 
     amino_acids = df['AminoAcid'].unique()
-    st.markdown(f"<div style='font-family: Times New Roman; font-size: 14px;'>✅ Loaded data for <b>{len(amino_acids)}</b> amino acid(s).</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div style='font-family: Times New Roman; font-size: 14px;'>✅ Loaded data for <b>{len(amino_acids)}</b> amino acid(s).</div>", unsafe_allow_html=True)
 
     phi_summary = []
 
@@ -94,26 +102,34 @@ if uploaded_file:
         sub_df = df[df['AminoAcid'] == aa]
         x, y, yerr = sub_df['Frequency'].values, sub_df['R2eff'].values, sub_df['R2eff_error'].values
 
-        st.markdown(f"<h4 style='font-family: Times New Roman; font-size: 18px;'>📈 Amino Acid: {aa}</h4>", unsafe_allow_html=True)
+        st.markdown(
+            f"<h4 style='font-family: Times New Roman; font-size: 18px;'>📈 Amino Acid: {aa}</h4>", unsafe_allow_html=True)
 
         fig, ax = plt.subplots()
-        ax.errorbar(x, y, yerr=yerr, fmt='o', color='black', capsize=4, label="Data")
+        ax.errorbar(x, y, yerr=yerr, fmt='o',
+                    color='black', capsize=4, label="Data")
 
         try:
-            popt_luz, pcov_luz = curve_fit(luz_meiboom, x, y, sigma=yerr, absolute_sigma=True, p0=[10.0, 5000.0, 0.001], bounds=([0, 0, 0], [np.inf, np.inf, np.inf]))
+            popt_luz, pcov_luz = curve_fit(luz_meiboom, x, y, sigma=yerr, absolute_sigma=True, p0=[
+                                           10.0, 5000.0, 0.001], bounds=([0, 0, 0], [np.inf, np.inf, np.inf]))
             perr_luz = np.sqrt(np.diag(pcov_luz))
             fit_luz = luz_meiboom(np.linspace(min(x), max(x), 300), *popt_luz)
-            ax.plot(np.linspace(min(x), max(x), 300), fit_luz, 'r-', label="Luz–Meiboom Fit")
-            phi_summary.append({"Residue": aa, "phi": popt_luz[2], "phi_err": perr_luz[2]})
+            ax.plot(np.linspace(min(x), max(x), 300),
+                    fit_luz, 'r-', label="Luz–Meiboom Fit")
+            phi_summary.append(
+                {"Residue": aa, "phi": popt_luz[2], "phi_err": perr_luz[2]})
         except Exception as e:
             st.error(f"❌ Luz–Meiboom fit failed: {e}")
             popt_luz = perr_luz = [np.nan] * 3
 
         try:
-            popt_cr, pcov_cr = curve_fit(carver_richards, x, y, sigma=yerr, p0=[20.0, 500.0, 500.0, 1.0], absolute_sigma=True, maxfev=10000)
+            popt_cr, pcov_cr = curve_fit(carver_richards, x, y, sigma=yerr, p0=[
+                                         20.0, 500.0, 500.0, 1.0], absolute_sigma=True, maxfev=10000)
             perr_cr = np.sqrt(np.diag(pcov_cr))
-            fit_cr = carver_richards(np.linspace(min(x), max(x), 300), *popt_cr)
-            ax.plot(np.linspace(min(x), max(x), 300), fit_cr, 'b--', label="Carver–Richards Fit")
+            fit_cr = carver_richards(
+                np.linspace(min(x), max(x), 300), *popt_cr)
+            ax.plot(np.linspace(min(x), max(x), 300), fit_cr,
+                    'b--', label="Carver–Richards Fit")
         except Exception as e:
             st.error(f"❌ Carver–Richards fit failed: {e}")
             popt_cr = perr_cr = [np.nan] * 4
@@ -154,13 +170,17 @@ if uploaded_file:
                 st.markdown("_Fit failed._")
 
     if phi_summary:
-        summary_df = pd.DataFrame(phi_summary).sort_values(by='Residue').reset_index(drop=True)
+        summary_df = pd.DataFrame(phi_summary).sort_values(
+            by='Residue').reset_index(drop=True)
         fig_phi, ax_phi = plt.subplots()
-        ax_phi.errorbar(summary_df.index + 1, summary_df['phi'], yerr=summary_df['phi_err'], fmt='o', color='black', capsize=4, linewidth=2)
-        ax_phi.plot(summary_df.index + 1, summary_df['phi'], color='red', linewidth=1.5)
+        ax_phi.errorbar(summary_df.index + 1,
+                        summary_df['phi'], yerr=summary_df['phi_err'], fmt='o', color='black', capsize=4, linewidth=2)
+        ax_phi.plot(summary_df.index + 1,
+                    summary_df['phi'], color='red', linewidth=1.5)
         ax_phi.set_xlabel("# residue")
         ax_phi.set_ylabel("Phi value")
         ax_phi.set_title("Phi values (Luz–Meiboom)")
         ax_phi.grid(True)
-        st.markdown("<h4 style='font-family: Times New Roman; font-size: 18px;'>📊 Summary of ϕ values (Luz–Meiboom)</h4>", unsafe_allow_html=True)
+        st.markdown(
+            "<h4 style='font-family: Times New Roman; font-size: 18px;'>📊 Summary of ϕ values (Luz–Meiboom)</h4>", unsafe_allow_html=True)
         st.pyplot(fig_phi)
