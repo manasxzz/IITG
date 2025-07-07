@@ -6,3 +6,6 @@ times new roman 12 uniform
 carver richards model
 ppt on chemex guide
 no exchange model and compare chi sq
+
+
+resultsn  F1 = CS
