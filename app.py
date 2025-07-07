@@ -4,6 +4,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from scipy.optimize import curve_fit
+import io
+import base64
+import xlsxwriter
 
 # Set font
 plt.rcParams['font.family'] = 'Times New Roman'
@@ -12,6 +15,22 @@ rcParams.update(
     {'axes.titlesize': 12, 'axes.labelsize': 12, 'legend.fontsize': 12})
 
 st.set_page_config(layout="centered")
+
+# Sidebar for file format explanation
+with st.sidebar:
+    st.markdown("""
+    <h3 style='font-family: Times New Roman; font-size: 18px;'>📄 Upload File Format</h3>
+    <p style='font-family: Times New Roman; font-size: 14px;'>
+        Upload an Excel file (.xlsx) with the following columns:
+        <ul>
+            <li><b>AminoAcid</b>: Name or identifier of the amino acid (e.g., ALA, GLY).</li>
+            <li><b>Frequency</b>: CPMG frequency in Hz (numeric).</li>
+            <li><b>R2eff</b>: Effective relaxation rate (s⁻¹, numeric).</li>
+            <li><b>R2eff_error</b>: Error in R2eff (s⁻¹, numeric).</li>
+        </ul>
+        Ensure the file has a header row and no missing values in these columns.
+    </p>
+    """, unsafe_allow_html=True)
 
 # Title and equations
 st.markdown("""
@@ -64,8 +83,17 @@ st.latex(r"""
 st.markdown(
     "<i>Carver–Richards fit uses full four-parameter expression including $k_{AB}$, $k_{BA}$, and $\Delta \delta$. No-Exchange model assumes constant $R_2$.</i>", unsafe_allow_html=True)
 
+# References
+st.markdown("""
+    <h3 style='font-family: Times New Roman; font-size: 16px;'>References</h3>
+    <p style='font-family: Times New Roman; font-size: 14px;'>
+        a. Carver, J. P.; Richards, R. E. (1972) General 2-site solution for chemical exchange produced dependence of T2 upon Carr-Purcell pulse separation. <i>J. Magn. Reson.</i>, 6, 89-96.<br>
+        b. Luz, Z.; Meiboom, S. (1963) Nuclear Magnetic Resonance study of the protolysis of trimethylammonium ion in aqueous solution—order of the reaction with respect to solvent. <i>J. Chem. Phys.</i>, 39, 366–370.
+    </p>
+""", unsafe_allow_html=True)
+
 uploaded_file = st.file_uploader(
-    "\U0001F4C1 Upload CSV with columns: AminoAcid, Frequency, R2eff, R2eff_error", type="csv")
+    "\U0001F4C1 Upload Excel file with columns: AminoAcid, Frequency, R2eff, R2eff_error", type="xlsx")
 
 # Model functions
 
@@ -95,10 +123,11 @@ def carver_richards(v_cpmg, R2, k_AB, k_BA, delta_ppm, B0=81.0):
 
 
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
+    df = pd.read_excel(uploaded_file)
     required_cols = {"AminoAcid", "Frequency", "R2eff", "R2eff_error"}
     if not required_cols.issubset(df.columns):
-        st.error("❌ CSV must contain: AminoAcid, Frequency, R2eff, R2eff_error")
+        st.error(
+            "❌ Excel file must contain: AminoAcid, Frequency, R2eff, R2eff_error")
         st.stop()
 
     amino_acids = df['AminoAcid'].unique()
@@ -107,6 +136,9 @@ if uploaded_file:
 
     fit_summary = []
     phi_summary = []
+    all_plots = []
+    all_tables = []
+
     for aa in amino_acids:
         sub_df = df[df['AminoAcid'] == aa]
         x, y, yerr = sub_df['Frequency'].values, sub_df['R2eff'].values, sub_df['R2eff_error'].values
@@ -131,7 +163,6 @@ if uploaded_file:
             chi_noex = np.sum(((y - yfit_noex) / yerr)**2)
             ax.plot(np.linspace(min(x), max(x), 300), no_exchange(np.linspace(
                 min(x), max(x), 300), *popt_noex), 'g-', label="No-Exchange Fit")
-
         except Exception as e:
             st.error(f"❌ No-Exchange fit failed: {e}")
 
@@ -168,6 +199,13 @@ if uploaded_file:
         ax.grid(True)
         st.pyplot(fig)
 
+        # Save plot to buffer
+        buf = io.BytesIO()
+        fig.savefig(buf, format="png")
+        buf.seek(0)
+        all_plots.append((f"{aa}_fit_plot.png", buf.getvalue()))
+        plt.close(fig)
+
         # Determine the best model
         min_chi = min(chi_noex, chi_luz, chi_cr)
         if min_chi == chi_noex:
@@ -184,16 +222,22 @@ if uploaded_file:
         with col1:
             st.markdown("**🧾 No-Exchange Parameters (± 1σ):**")
             try:
-                st.table(pd.DataFrame({"Parameter": ["R₂"], "Value": [
-                         f"{val:.6g}" for val in popt_noex], "±1σ": [f"{err:.6g}" for err in perr_noex]}))
+                noex_table = pd.DataFrame({"Parameter": ["R₂"], "Value": [
+                    f"{val:.6g}" for val in popt_noex], "±1σ": [f"{err:.6g}" for err in perr_noex]})
+                st.table(noex_table)
+                all_tables.append(
+                    (f"{aa}_no_exchange_params.txt", noex_table.to_csv(index=False)))
             except:
                 st.markdown("_Fit failed._")
 
         with col2:
             st.markdown("**🧾 Luz–Meiboom Parameters (± 1σ):**")
             try:
-                st.table(pd.DataFrame({"Parameter": ["R₂", "kₑₓ", "φ"], "Value": [
-                         f"{val:.6g}" for val in popt_luz], "±1σ": [f"{err:.6g}" for err in perr_luz]}))
+                luz_table = pd.DataFrame({"Parameter": ["R₂", "kₑₓ", "φ"], "Value": [
+                    f"{val:.6g}" for val in popt_luz], "±1σ": [f"{err:.6g}" for err in perr_luz]})
+                st.table(luz_table)
+                all_tables.append(
+                    (f"{aa}_luz_meiboom_params.txt", luz_table.to_csv(index=False)))
             except:
                 st.markdown("_Fit failed._")
 
@@ -202,8 +246,11 @@ if uploaded_file:
             try:
                 keff = popt_cr[1] + popt_cr[2]
                 keff_err = np.sqrt(perr_cr[1]**2 + perr_cr[2]**2)
-                st.table(pd.DataFrame({"Parameter": ["R₂", "k_AB", "k_BA", "Δδ", "kₑₓ"], "Value": [f"{popt_cr[0]:.6g}", f"{popt_cr[1]:.6g}", f"{popt_cr[2]:.6g}", f"{popt_cr[3]:.6g}", f"{keff:.6g}"], "±1σ": [
-                         f"{perr_cr[0]:.6g}", f"{perr_cr[1]:.6g}", f"{perr_cr[2]:.6g}", f"{perr_cr[3]:.6g}", f"{keff_err:.6g}"]}))
+                cr_table = pd.DataFrame({"Parameter": ["R₂", "k_AB", "k_BA", "Δδ", "kₑₓ"], "Value": [f"{popt_cr[0]:.6g}", f"{popt_cr[1]:.6g}", f"{popt_cr[2]:.6g}", f"{popt_cr[3]:.6g}", f"{keff:.6g}"], "±1σ": [
+                    f"{perr_cr[0]:.6g}", f"{perr_cr[1]:.6g}", f"{perr_cr[2]:.6g}", f"{perr_cr[3]:.6g}", f"{keff_err:.6g}"]})
+                st.table(cr_table)
+                all_tables.append(
+                    (f"{aa}_carver_richards_params.txt", cr_table.to_csv(index=False)))
             except:
                 st.markdown("_Fit failed._")
 
@@ -214,6 +261,9 @@ if uploaded_file:
             by="Residue").reset_index(drop=True)
         st.dataframe(summary_table.style.highlight_min(
             subset=["Chi² (NoEx)", "Chi² (Luz)", "Chi² (CR)"], axis=1, color="lightgreen"))
+        all_tables.append(("model_comparison_summary.txt",
+                          summary_table.to_csv(index=False)))
+
     if phi_summary:
         summary_df = pd.DataFrame(phi_summary).sort_values(
             by='Residue').reset_index(drop=True)
@@ -229,3 +279,47 @@ if uploaded_file:
         st.markdown(
             "<h4 style='font-family: Times New Roman; font-size: 18px;'>📊 Summary of ϕ values (Luz–Meiboom)</h4>", unsafe_allow_html=True)
         st.pyplot(fig_phi)
+        buf_phi = io.BytesIO()
+        fig_phi.savefig(buf_phi, format="png")
+        buf_phi.seek(0)
+        all_plots.append(("phi_values_plot.png", buf_phi.getvalue()))
+        plt.close(fig_phi)
+        all_tables.append(("phi_summary.txt", summary_df.to_csv(index=False)))
+
+    # Download all plots and tables
+    if all_plots or all_tables:
+        st.markdown(
+            "<h4 style='font-family: Times New Roman; font-size: 18px;'>⬇️ Download Results</h4>", unsafe_allow_html=True)
+
+        # Download individual plots
+        for plot_name, plot_data in all_plots:
+            st.download_button(
+                label=f"Download {plot_name}",
+                data=plot_data,
+                file_name=plot_name,
+                mime="image/png"
+            )
+
+        # Download individual tables
+        for table_name, table_data in all_tables:
+            st.download_button(
+                label=f"Download {table_name}",
+                data=table_data,
+                file_name=table_name,
+                mime="text/csv"
+            )
+
+        # Download all as Excel
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            for table_name, table_data in all_tables:
+                df_temp = pd.read_csv(io.StringIO(table_data))
+                df_temp.to_excel(writer, sheet_name=table_name.replace(
+                    '.txt', ''), index=False)
+        output.seek(0)
+        st.download_button(
+            label="Download All Tables as Excel",
+            data=output,
+            file_name="all_tables.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )

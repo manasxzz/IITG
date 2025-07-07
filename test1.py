@@ -106,7 +106,7 @@ if uploaded_file:
         f"<div style='font-family: Times New Roman; font-size: 14px;'>✅ Loaded data for <b>{len(amino_acids)}</b> amino acid(s).</div>", unsafe_allow_html=True)
 
     fit_summary = []
-
+    phi_summary = []
     for aa in amino_acids:
         sub_df = df[df['AminoAcid'] == aa]
         x, y, yerr = sub_df['Frequency'].values, sub_df['R2eff'].values, sub_df['R2eff_error'].values
@@ -131,6 +131,7 @@ if uploaded_file:
             chi_noex = np.sum(((y - yfit_noex) / yerr)**2)
             ax.plot(np.linspace(min(x), max(x), 300), no_exchange(np.linspace(
                 min(x), max(x), 300), *popt_noex), 'g-', label="No-Exchange Fit")
+
         except Exception as e:
             st.error(f"❌ No-Exchange fit failed: {e}")
 
@@ -143,6 +144,8 @@ if uploaded_file:
             chi_luz = np.sum(((y - yfit_luz) / yerr)**2)
             ax.plot(np.linspace(min(x), max(x), 300), luz_meiboom(np.linspace(
                 min(x), max(x), 300), *popt_luz), 'r-', label="Luz–Meiboom Fit")
+            phi_summary.append(
+                {"Residue": aa, "phi": popt_luz[2], "phi_err": perr_luz[2]})
         except Exception as e:
             st.error(f"❌ Luz–Meiboom fit failed: {e}")
 
@@ -211,3 +214,18 @@ if uploaded_file:
             by="Residue").reset_index(drop=True)
         st.dataframe(summary_table.style.highlight_min(
             subset=["Chi² (NoEx)", "Chi² (Luz)", "Chi² (CR)"], axis=1, color="lightgreen"))
+    if phi_summary:
+        summary_df = pd.DataFrame(phi_summary).sort_values(
+            by='Residue').reset_index(drop=True)
+        fig_phi, ax_phi = plt.subplots()
+        ax_phi.errorbar(summary_df.index + 1,
+                        summary_df['phi'], yerr=summary_df['phi_err'], fmt='o', color='black', capsize=4, linewidth=2)
+        ax_phi.plot(summary_df.index + 1,
+                    summary_df['phi'], color='red', linewidth=1.5)
+        ax_phi.set_xlabel("# residue")
+        ax_phi.set_ylabel("Phi value")
+        ax_phi.set_title("Phi values (Luz–Meiboom)")
+        ax_phi.grid(True)
+        st.markdown(
+            "<h4 style='font-family: Times New Roman; font-size: 18px;'>📊 Summary of ϕ values (Luz–Meiboom)</h4>", unsafe_allow_html=True)
+        st.pyplot(fig_phi)
