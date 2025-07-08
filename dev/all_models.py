@@ -33,7 +33,6 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.number_input("Enter B0 value (MHz):", min_value=0.0,
                     value=81.0, step=0.1, key="B0_input")
-
 # Title and equations
 st.markdown("""
     <h2 style="font-family: 'Times New Roman'; font-size: 20px;">
@@ -156,8 +155,6 @@ if uploaded_file:
         popt_noex = perr_noex = [np.nan]
         popt_luz = perr_luz = [np.nan] * 3
         popt_cr = perr_cr = [np.nan] * 4
-        best_yfit = None
-        best_model_name = None
 
         # No-Exchange Fit
         try:
@@ -166,6 +163,8 @@ if uploaded_file:
             perr_noex = np.sqrt(np.diag(pcov_noex))
             yfit_noex = no_exchange(x, *popt_noex)
             chi_noex = np.sum(((y - yfit_noex) / yerr)**2)
+            ax.plot(np.linspace(min(x), max(x), 300), no_exchange(np.linspace(
+                min(x), max(x), 300), *popt_noex), 'g-', label="No-Exchange Fit")
         except Exception as e:
             st.error(f"❌ No-Exchange fit failed: {e}")
 
@@ -176,6 +175,8 @@ if uploaded_file:
             perr_luz = np.sqrt(np.diag(pcov_luz))
             yfit_luz = luz_meiboom(x, *popt_luz)
             chi_luz = np.sum(((y - yfit_luz) / yerr)**2)
+            ax.plot(np.linspace(min(x), max(x), 300), luz_meiboom(np.linspace(
+                min(x), max(x), 300), *popt_luz), 'r-', label="Luz–Meiboom Fit")
             phi_summary.append(
                 {"Residue": aa, "phi": popt_luz[2], "phi_err": perr_luz[2]})
         except Exception as e:
@@ -188,34 +189,14 @@ if uploaded_file:
             perr_cr = np.sqrt(np.diag(pcov_cr))
             yfit_cr = carver_richards(x, *popt_cr)
             chi_cr = np.sum(((y - yfit_cr) / yerr)**2)
+            ax.plot(np.linspace(min(x), max(x), 300), carver_richards(np.linspace(
+                min(x), max(x), 300), *popt_cr), 'b--', label="Carver–Richards Fit")
         except Exception as e:
             st.error(f"❌ Carver–Richards fit failed: {e}")
 
-        # Determine the best model and plot only its fit
-        min_chi = min(chi_noex, chi_luz, chi_cr)
-        x_fit = np.linspace(min(x), max(x), 300)
-        if min_chi == chi_noex and not np.isinf(chi_noex):
-            best_model_name = "No-Exchange"
-            ax.plot(x_fit, no_exchange(x_fit, *popt_noex),
-                    'g-', label="No-Exchange Fit")
-            best_yfit = no_exchange(x, *popt_noex)
-        elif min_chi == chi_luz and not np.isinf(chi_luz):
-            best_model_name = "Luz–Meiboom"
-            ax.plot(x_fit, luz_meiboom(x_fit, *popt_luz),
-                    'r-', label="Luz–Meiboom Fit")
-            best_yfit = luz_meiboom(x, *popt_luz)
-        elif min_chi == chi_cr and not np.isinf(chi_cr):
-            best_model_name = "Carver–Richards"
-            ax.plot(x_fit, carver_richards(x_fit, *popt_cr),
-                    'b--', label="Carver–Richards Fit")
-            best_yfit = carver_richards(x, *popt_cr)
-        else:
-            st.warning(f"No valid fit for {aa}. Skipping plot.")
-            best_model_name = "None"
-
         ax.set_xlabel("Frequency (Hz)")
         ax.set_ylabel(r"$R_{2,\mathrm{eff}}$ (s$^{-1}$)")
-        ax.set_title(f"Best Fit Model ({best_model_name}) for {aa}")
+        ax.set_title(f"Model Fits for {aa}")
         ax.legend()
         ax.grid(True)
         st.pyplot(fig)
@@ -224,23 +205,19 @@ if uploaded_file:
         buf = io.BytesIO()
         fig.savefig(buf, format="png")
         buf.seek(0)
-        all_plots.append((f"{aa}_best_fit_plot.png", buf.getvalue()))
+        all_plots.append((f"{aa}_fit_plot.png", buf.getvalue()))
         plt.close(fig)
 
-        # Store R2eff calculated values for the best-fit model
-        if best_yfit is not None:
-            r2eff_table = pd.DataFrame({
-                "Frequency": x,
-                "R2eff_Experimental": y,
-                "R2eff_Calculated": best_yfit,
-                "R2eff_Error": yerr
-            })
-            all_tables.append(
-                (f"{aa}_r2eff_calculated.csv", r2eff_table.to_csv(index=False)))
-
-        # Store fit summary
+        # Determine the best model
+        min_chi = min(chi_noex, chi_luz, chi_cr)
+        if min_chi == chi_noex:
+            better_model = "No-Exchange"
+        elif min_chi == chi_luz:
+            better_model = "Luz–Meiboom"
+        else:
+            better_model = "Carver–Richards"
         fit_summary.append({"Residue": aa, "Chi² (NoEx)": chi_noex,
-                           "Chi² (Luz)": chi_luz, "Chi² (CR)": chi_cr, "Better Fit": best_model_name})
+                           "Chi² (Luz)": chi_luz, "Chi² (CR)": chi_cr, "Better Fit": better_model})
 
         col1, col2, col3 = st.columns(3)
 
@@ -340,7 +317,7 @@ if uploaded_file:
             for table_name, table_data in all_tables:
                 df_temp = pd.read_csv(io.StringIO(table_data))
                 df_temp.to_excel(writer, sheet_name=table_name.replace(
-                    '.txt', '').replace('.csv', ''), index=False)
+                    '.txt', ''), index=False)
         output.seek(0)
         st.download_button(
             label="Download All Tables as Excel",
