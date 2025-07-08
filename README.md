@@ -1,6 +1,6 @@
 # CPMG Data Analysis Tool
 
-**A Streamlit-based application for fitting CPMG relaxation dispersion data in protein NMR.**  
+**An application for fitting CPMG relaxation dispersion data in protein NMR.**  
 Developed during a research internship at **IIT Guwahati**.
 
 ---
