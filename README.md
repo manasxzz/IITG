@@ -24,8 +24,8 @@ It outputs fitted parameters, visualizations, model comparisons, and allows data
 - **📈 Model Fitting:**
 
   - **No-Exchange:** Fits constant R₂.
-  - **Luz-Meiboom:** Fits R₂, _k<sub>ex</sub>_, and φ.
-  - **Carver-Richards:** Fits R₂, _k<sub>AB</sub>_, _k<sub>BA</sub>_, and Δδ, and computes _k<sub>ex</sub> = k<sub>AB</sub> + k<sub>BA</sub>_.
+  - **Luz-Meiboom:** Fits R₂, _kₑₓ_, and φ.
+  - **Carver-Richards:** Fits R₂, _k_AB_, _k_BA_, and Δδ, and computes _kₑₓ = k_AB + k_BA_.
 
 - **📊 Visualization:** Plots experimental data with error bars and fitted curves. Also includes a φ-value summary plot.
 
@@ -44,27 +44,37 @@ It outputs fitted parameters, visualizations, model comparisons, and allows data
 
 ## 🚀 Installation
 
-```bash
-# Clone the repository
+### 1. Clone the repository
+
+```sh
 git clone https://github.com/manasxzz/IITG.git
 cd IITG
+```
 
-# Create a virtual environment (recommended)
+### 2. Create a virtual environment (recommended)
+
+```sh
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-# Install required packages
+### 3. Install dependencies
+
+```sh
 pip install -r requirements.txt
+```
 
-# Launch the app
+### 4. Launch the app
+
+```sh
 streamlit run app.py
+```
 
 ---
 
 ## 🧪 Usage
 
 1. Upload a properly formatted `.xlsx` file (see below).
-
 2. The app will:
 
    - Fit each amino acid to all three models.
@@ -93,15 +103,13 @@ The Excel file should include the following columns **with headers and no missin
 ## 📁 Repository Structure
 
 ```
-
 IITG/
-├── app.py # Main Streamlit app
-├── requirements.txt # Python dependencies
-├── .gitignore # Ignored files (e.g., venv, **pycache**)
-├── LICENSE # MIT License
-├── dev/ # (Optional) Experimental scripts
-└── docs/ # (Optional) Additional documentation or data
-
+├── app.py                 # Main Streamlit app
+├── requirements.txt       # Python dependencies
+├── .gitignore             # Ignored files (e.g., venv, __pycache__)
+├── LICENSE                # MIT License
+├── dev/                   # (Optional) Experimental scripts
+└── docs/                  # (Optional) Additional documentation or data
 ```
 
 ---
@@ -130,7 +138,7 @@ Listed in `requirements.txt`:
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License.  
 See the [LICENSE](./LICENSE) file for more details.
 
 ---
@@ -139,4 +147,3 @@ See the [LICENSE](./LICENSE) file for more details.
 
 - Developed as part of a research internship at **IIT Guwahati**, Department of Biosciences and Bioengineering.
 - Inspired by NMR relaxation studies in protein dynamics.
-```
