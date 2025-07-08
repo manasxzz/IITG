@@ -108,8 +108,7 @@ IITG/
 ├── requirements.txt       # Python dependencies
 ├── .gitignore             # Ignored files (e.g., venv, __pycache__)
 ├── LICENSE                # MIT License
-├── dev/                   # (Optional) Experimental scripts
-└── docs/                  # (Optional) Additional documentation or data
+├── dev/                   # developmaental stages
 ```
 
 ---
