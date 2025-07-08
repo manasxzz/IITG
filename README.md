@@ -37,7 +37,7 @@ It outputs fitted parameters, visualizations, model comparisons, and allows data
 
 - **💾 Export:**
   - Download individual plots (.png).
-  - Export fitted parameter tables as `.csv`.
+  - Export fitted parameter tables.
   - Export all results to a single Excel `.xlsx` file.
 
 ---
