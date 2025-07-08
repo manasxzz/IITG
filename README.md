@@ -1,4 +1,4 @@
-# CPMG Data Analysis Tool
+# Manas Data Analysis Tool
 
 **An application for fitting CPMG relaxation dispersion data in protein NMR.**  
 Developed during a research internship at **IIT Guwahati**.
