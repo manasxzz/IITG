@@ -1,4 +1,3 @@
-````markdown
 # CPMG Data Analysis Tool
 
 **A Streamlit-based application for fitting CPMG relaxation dispersion data in protein NMR.**  
@@ -59,8 +58,6 @@ pip install -r requirements.txt
 
 # Launch the app
 streamlit run app.py
-```
-````
 
 ---
 
@@ -96,13 +93,15 @@ The Excel file should include the following columns **with headers and no missin
 ## 📁 Repository Structure
 
 ```
+
 IITG/
-├── app.py                 # Main Streamlit app
-├── requirements.txt       # Python dependencies
-├── .gitignore             # Ignored files (e.g., venv, __pycache__)
-├── LICENSE                # MIT License
-├── dev/                   # (Optional) Experimental scripts
-└── docs/                  # (Optional) Additional documentation or data
+├── app.py # Main Streamlit app
+├── requirements.txt # Python dependencies
+├── .gitignore # Ignored files (e.g., venv, **pycache**)
+├── LICENSE # MIT License
+├── dev/ # (Optional) Experimental scripts
+└── docs/ # (Optional) Additional documentation or data
+
 ```
 
 ---
@@ -140,3 +139,4 @@ See the [LICENSE](./LICENSE) file for more details.
 
 - Developed as part of a research internship at **IIT Guwahati**, Department of Biosciences and Bioengineering.
 - Inspired by NMR relaxation studies in protein dynamics.
+```
