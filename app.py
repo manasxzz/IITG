@@ -31,7 +31,8 @@ with st.sidebar:
         Ensure the file has a header row and no missing values in these columns.
     </p>
     """, unsafe_allow_html=True)
-
+    st.number_input("Enter B0 value (MHz):", min_value=0.0,
+                    value=81.0, step=0.1, key="B0_input")
 # Title and equations
 st.markdown("""
     <h2 style="font-family: 'Times New Roman'; font-size: 20px;">
@@ -87,8 +88,8 @@ st.markdown(
 st.markdown("""
     <h3 style='font-family: Times New Roman; font-size: 16px;'>References</h3>
     <p style='font-family: Times New Roman; font-size: 14px;'>
-        a. Carver, J. P.; Richards, R. E. (1972) General 2-site solution for chemical exchange produced dependence of T2 upon Carr-Purcell pulse separation. <i>J. Magn. Reson.</i>, 6, 89-96.<br>
-        b. Luz, Z.; Meiboom, S. (1963) Nuclear Magnetic Resonance study of the protolysis of trimethylammonium ion in aqueous solution—order of the reaction with respect to solvent. <i>J. Chem. Phys.</i>, 39, 366–370.
+        1. Luz, Z.; Meiboom, S. (1963) Nuclear Magnetic Resonance study of the protolysis of trimethylammonium ion in aqueous solution—order of the reaction with respect to solvent. <i>J. Chem. Phys.</i>, 39, 366–370.<br>
+        2. Carver, J. P.; Richards, R. E. (1972) General 2-site solution for chemical exchange produced dependence of T2 upon Carr-Purcell pulse separation. <i>J. Magn. Reson.</i>, 6, 89-96.
     </p>
 """, unsafe_allow_html=True)
 
@@ -96,18 +97,19 @@ uploaded_file = st.file_uploader(
     "\U0001F4C1 Upload Excel file with columns: AminoAcid, Frequency, R2eff, R2eff_error", type="xlsx")
 
 # Model functions
+B0 = st.session_state.B0_input
 
 
 def no_exchange(v_cpmg, R2):
     return np.full_like(v_cpmg, R2)
 
 
-def luz_meiboom(v_cpmg, R2, k_ex, phi, B0=81.0):
+def luz_meiboom(v_cpmg, R2, k_ex, phi, B0=st.session_state.B0_input):
     Phi = 4 * np.pi**2 * B0**2 * phi
     return R2 + (Phi / k_ex) * (1 - (4 * v_cpmg / k_ex) * np.tanh(k_ex / (4 * v_cpmg)))
 
 
-def carver_richards(v_cpmg, R2, k_AB, k_BA, delta_ppm, B0=81.0):
+def carver_richards(v_cpmg, R2, k_AB, k_BA, delta_ppm, B0=st.session_state.B0_input):
     delta = 2 * np.pi * delta_ppm * B0
     kex = k_AB + k_BA
     psi = (k_AB - k_BA)**2 - delta**2 + 4 * k_AB * k_BA
