@@ -1,33 +1,37 @@
-# CPMG Fitting Tool Presentation: Python and Code Explained in Blocks
+# CPMG Fitting Tool Presentation: Python Implementation and Code Analysis
 
-_Presented by [Your Name], Internship at IIT Guwahati, July 9, 2025_
+_Presented by Manas Mishra, Internship at IIT Guwahati, July 9, 2025_
 
-Welcome! I’m excited to share a tool I built to simplify NMR data analysis using Python. This presentation is for everyone, even if you’ve never coded. I’ll explain Python basics, the science behind the tool, and how the code works in easy-to-follow blocks, like steps in a recipe. We’ll see how it helps study proteins and makes your research faster.
+## Introduction
 
----
-
-## 1. What is NMR and Why Use Python?
-
-- **NMR (Nuclear Magnetic Resonance)**: A technique to study proteins by observing how their atoms behave in a magnetic field, like a camera capturing their movements.
-- **CPMG Experiments**: Carr-Purcell-Meiboom-Gill (CPMG) measures how fast protein atoms “relax” (return to normal) after a magnetic pulse. This shows how proteins switch shapes, key for biology and drug design.
-- **The Challenge**: CPMG data involves complex math, like fitting curves to numbers, which is slow and error-prone by hand.
-- **CPMG Fitting Tool**: My tool automates this, letting you upload data, see graphs, and get results without coding.
-- **Python**: A simple programming language, like writing clear instructions for a computer. It’s great for math, data, and building apps.
-- **Why Python?**: It’s like a smart lab assistant that handles calculations, organizes data, and creates visuals, all in one.
+This presentation elucidates the development and functionality of a Python-based CPMG Fitting Tool designed to analyze Nuclear Magnetic Resonance (NMR) data from Carr-Purcell-Meiboom-Gill (CPMG) experiments. The tool automates the fitting of three mathematical models to NMR data, providing researchers with an intuitive interface to upload data, visualize results, and extract parameters without requiring programming expertise. This document explains the tool’s purpose, the science behind it, and its Python implementation, with code blocks broken down for clarity, tailored for scientists unfamiliar with coding.
 
 ---
 
-## 2. Python Basics for Non-Coders
+## 1. NMR and the Role of Python in CPMG Analysis
 
-Python is like a recipe book for computers. You write instructions (code), and the computer follows them. Here’s what you need to know:
+**Nuclear Magnetic Resonance (NMR)** is a powerful spectroscopic technique used to investigate the structural and dynamic properties of proteins by observing nuclear spin behavior in a magnetic field. The **Carr-Purcell-Meiboom-Gill (CPMG)** pulse sequence measures the transverse relaxation rate (R₂,eff) of nuclear spins, revealing protein conformational dynamics critical for understanding biological processes and drug design.
 
-- **Variables**: Boxes to store numbers or words. Example: `box = 10` stores 10 in a box named `box`.
-- **Functions**: Mini-recipes that do a job, like `add(2, 3)` giving 5.
-- **Lists**: A way to store multiple items, like a shopping list: `[1, 2, 3]`.
-- **Libraries**: Pre-made toolkits, like borrowing a calculator or graph maker.
-- **Loops**: Repeat a task, like “for each item, do this.”
-- **Conditionals**: Make decisions, like “if the data is ready, analyze it.”
+**Challenges in CPMG Analysis**: CPMG data analysis involves fitting complex mathematical models to experimental data, a process that is computationally intensive and prone to errors when performed manually. The CPMG Fitting Tool addresses this by automating model fitting, data visualization, and result exportation.
 
+**Why Python?**: Python is a versatile, high-level programming language ideal for scientific computing due to its robust libraries for numerical analysis, data handling, and visualization. Its clear syntax facilitates the development of user-friendly applications, making it an excellent choice for automating NMR data analysis.
+
+**Tool Overview**: The CPMG Fitting Tool is a web-based application that allows users to upload an Excel file containing CPMG data, input the magnetic field strength (B0), and obtain fitted model parameters, visualizations, and downloadable results. It leverages Python’s ecosystem to streamline the analysis process, enhancing efficiency and accessibility for researchers.
+
+---
+
+## 2. Python Fundamentals for Scientists
+
+Python is a programming language that executes user-defined instructions to perform tasks such as data analysis and visualization. Below are key concepts explained for non-coders:
+
+- **Variables**: Containers for storing data, such as numbers or text. For example, `rate = 10.5` assigns the value 10.5 to a variable named `rate`.
+- **Functions**: Reusable blocks of code that perform specific tasks, e.g., a function to calculate R₂,eff from input parameters.
+- **Lists**: Ordered collections of items, such as `[100, 200, 300]` for CPMG frequencies.
+- **Libraries**: Pre-built modules that extend Python’s capabilities, such as tools for data processing or plotting.
+- **Loops**: Instructions to repeat tasks, e.g., analyzing data for each amino acid in a dataset.
+- **Conditionals**: Decision-making structures, e.g., checking if a dataset meets required formats.
+
+These concepts form the foundation of the CPMG Fitting Tool, enabling it to process NMR data efficiently.
 Example:
 
 ```python
@@ -36,84 +40,107 @@ print(box)  # Show 5
 numbers = [1, 2, 3]  # A list
 ```
 
-These are the building blocks of our tool’s code.
+---
+
+## 3. Python Libraries Utilized
+
+The tool integrates several Python libraries, each serving a specific function in the analysis pipeline:
+
+- **Streamlit**: Creates an interactive web interface for data upload and result visualization.
+- **Pandas**: Manages tabular data, enabling efficient reading and manipulation of Excel files.
+- **NumPy**: Performs high-performance numerical computations, essential for model calculations.
+- **Matplotlib**: Generates publication-quality plots of data and fitted models.
+- **SciPy**: Implements curve-fitting algorithms to optimize model parameters.
+- **XlsxWriter**: Exports results to Excel files for easy sharing.
+- **io and base64**: Facilitate the handling and encoding of files for download.
+
+These libraries collectively enable the tool to process data, perform calculations, and present results in an accessible format.
 
 ---
 
-## 3. Libraries: The Toolkits We Use
+## 4. Functionality of the CPMG Fitting Tool
 
-Our tool uses Python **libraries**, like appliances in a kitchen. Each does a specific job:
+**Purpose**: The tool analyzes CPMG data to quantify protein conformational dynamics by fitting three mathematical models: No-Exchange, Luz–Meiboom, and Carver–Richards. It extracts parameters that describe protein motion, aiding in biological and pharmaceutical research.
 
-- **Streamlit**: Builds a web app where you upload files and see results, like a user-friendly website.
-- **Pandas**: Handles data tables, like Excel, to read and organize NMR data.
-- **NumPy**: A super calculator for math with numbers and lists, used in our models.
-- **Matplotlib**: Draws graphs, like plotting your data and model fits.
-- **SciPy**: Fits math models to data, like finding the best curve.
-- **XlsxWriter**: Saves results as Excel files for reports.
-- **io and base64**: Help save graphs and files, like packaging data for download.
+**Workflow**:
 
-These libraries make our tool powerful and easy to use.
+1. **Input**: Users upload an Excel file (.xlsx) with columns: `AminoAcid` (e.g., ALA, GLY), `Frequency` (CPMG frequency in Hz), `R2eff` (effective relaxation rate in s⁻¹), and `R2eff_error` (uncertainty in R2eff).
+2. **Parameter Input**: Users specify the magnetic field strength (B0, in MHz).
+3. **Output**: The tool generates:
+   - Plots comparing experimental data to model fits.
+   - Tables of fitted parameters with uncertainties.
+   - A summary of phi (φ) values from the Luz–Meiboom model.
+   - Downloadable results in PNG and Excel formats.
 
----
-
-## 4. The CPMG Fitting Tool: What It Does
-
-- **Purpose**: Analyzes CPMG data to understand protein movements by fitting three math models (No-Exchange, Luz–Meiboom, Carver–Richards).
-- **How It Works**:
-  - Upload an Excel file with columns: AminoAcid (e.g., ALA), Frequency (Hz), R2eff (relaxation rate), R2eff_error (uncertainty).
-  - Enter the magnetic field strength (B0, e.g., 81 MHz).
-  - See graphs comparing models, tables with parameters, and a phi value graph.
-  - Download results for research papers.
-- **Why It’s Great**: No coding needed—just upload and click!
-- **Python’s Role**: Does the math, organizes data, and shows visuals, like an automated lab assistant.
+**Advantages**: The tool eliminates the need for manual coding, offering a user-friendly interface that accelerates analysis and enhances reproducibility.
 
 ---
 
-## 5. The Science: Three Models and Their Terms
+## 5. Scientific Basis: CPMG Models and Parameters
 
-Our tool fits three models to describe how proteins move. Each model uses specific terms, explained below, and matches your data to a curve.
+The tool fits three models to describe protein dynamics, each suitable for different exchange regimes. Below, we outline each model and its parameters.
 
 ### No-Exchange Model
 
-- **What It Does**: Assumes proteins don’t switch shapes, so the relaxation rate (R₂,eff) is constant, like a steady heartbeat.
-- **Terms**:
-  - **R₂,eff**: The effective relaxation rate (s⁻¹), how fast atoms return to normal.
-  - **R₂**: The constant relaxation rate in this model.
-  - **ν_CPMG**: The CPMG frequency (Hz), how often magnetic pulses are applied.
-- **Equation**: R₂,eff(ν_CPMG) = R₂ (a flat line).
+- **Description**: Assumes no conformational exchange, modeling R₂,eff as a constant independent of CPMG frequency (ν_CPMG).
+- **Parameters**:
+  - **R₂**: Intrinsic transverse relaxation rate (s⁻¹).
+  - **ν_CPMG**: CPMG pulse frequency (Hz).
+- **Equation**:
+  \[
+  R*{2,\mathrm{eff}}(\nu*\mathrm{CPMG}) = R_2
+  \]
 
 ### Luz–Meiboom Model
 
-- **What It Does**: Models fast switching between two protein shapes, like a dancer flipping between poses.
-- **Terms**:
-  - **R₂**: Base relaxation rate (s⁻¹).
-  - **kₑₓ**: Exchange rate (s⁻¹), how fast the protein switches shapes.
-  - **φ (phi)**: A parameter related to the magnetic field’s effect on the protein.
-  - **B0**: Magnetic field strength (MHz), entered by the user.
+- **Description**: Models fast conformational exchange between two protein states, capturing dynamic effects on relaxation.
+- **Parameters**:
+  - **R₂**: Intrinsic relaxation rate (s⁻¹).
+  - **kₑₓ**: Exchange rate between states (s⁻¹).
+  - **φ**: Parameter reflecting the chemical shift difference and population of states, scaled by B0².
+  - **B0**: Magnetic field strength (MHz).
   - **ν_CPMG**: CPMG frequency (Hz).
-  - **tanh**: A math function (hyperbolic tangent) to model the switching effect.
-    ![Luz–Meiboom Equation](images/luz_meiboom_model.jpg)
+- **Equation**:
+  \[
+  R*{2,\mathrm{eff}}(\nu*\mathrm{CPMG}) = R*2 + \frac{\Phi}{k*\mathrm{ex}} \left(1 - \frac{4\nu*\mathrm{CPMG}}{k*\mathrm{ex}} \tanh\left(\frac{k*\mathrm{ex}}{4\nu*\mathrm{CPMG}}\right)\right)
+  \]
+  where \(\Phi = 4\pi^2 B_0^2 \phi\).
 
 ### Carver–Richards Model
 
-- **What It Does**: Models complex switching with multiple rates, like a dancer with many moves.
-- **Terms**:
-
-  - **R₂**: Base relaxation rate (s⁻¹).
-  - **k_AB, k_BA**: Forward and backward exchange rates (s⁻¹) between two protein states.
-  - **Δδ**: Chemical shift difference (ppm), how much the magnetic environment differs.
-  - **kₑₓ**: Total exchange rate (k_AB + k_BA).
+- **Description**: Models general two-site exchange, accommodating both fast and slow regimes with complex dynamics.
+- **Parameters**:
+  - **R₂**: Intrinsic relaxation rate (s⁻¹).
+  - **k_AB, k_BA**: Forward and backward exchange rates (s⁻¹).
+  - **Δδ**: Chemical shift difference between states (ppm).
+  - **kₑₓ**: Total exchange rate (k_AB + k_BA, s⁻¹).
   - **B0**: Magnetic field strength (MHz).
   - **ν_CPMG**: CPMG frequency (Hz).
-  - **ψ, ζ, η, ξ, D_±, λ**: Intermediate values to compute the complex dynamics.
+  - **ψ, ζ, η, ξ, D_±, λ**: Intermediate terms for computing dynamics.
+- **Equations**:
+  \[
+  R*{2,\mathrm{eff}}^{\mathrm{rel}}(\nu*\mathrm{CPMG}) = R*2 + \frac{k*{AB} + k*{BA}}{2} - 2\nu*\mathrm{CPMG} \cdot \ln(\lambda)
+  \]
+  \[
+  \lambda = \sqrt{D*+ \cosh^2(\xi) - D*- \cos^2(\eta)} + \sqrt{D*+ \sinh^2(\xi) + D*- \sin^2(\eta)}
+  \]
+  \[
+  D*\pm = \frac{1}{2} \left(1 \pm \frac{\psi + 2(2\pi \Delta\delta B_0)^2}{\sqrt{\psi^2 + \zeta^2}}\right)
+  \]
+  \[
+  \eta = \frac{1}{2\nu*\mathrm{CPMG} \sqrt{8}} \sqrt{-\psi + \sqrt{\psi^2 + \zeta^2}}, \quad
+  \xi = \frac{1}{2\nu*\mathrm{CPMG} \sqrt{8}} \sqrt{\psi + \sqrt{\psi^2 + \zeta^2}}
+  \]
+  \[
+  \psi = (k*{AB} - k*{BA})^2 - (2\pi \Delta\delta B_0)^2 + 4k*{AB}k*{BA}, \quad
+  \zeta = 4\pi \Delta\delta B_0 (k*{AB} - k\_{BA})
+  \]
 
-  ![Carver–Richards Equation](images/carver_richards_model.jpg)
-
-- **Why These Models?**: They describe different protein behaviors, and Python fits them to find the best match for your data.
+**Rationale**: These models cover a range of protein dynamics, from static (No-Exchange) to fast (Luz–Meiboom) and general (Carver–Richards) exchange, enabling comprehensive analysis of CPMG data.
 
 ---
 
-## 6. Code Walkthrough: Setting Up the App
+## 6. Code Analysis: Application Initialization
 
 **Code Block: Importing Libraries and Configuring Settings**
 
@@ -128,56 +155,54 @@ import base64
 import xlsxwriter
 plt.rcParams['font.family'] = 'Times New Roman'
 plt.rcParams['font.size'] = 12
-rcParams.update({'axes.titlesize': 12, 'axes.labelsize': 12, 'legend.fontsize': 12})
+plt.rcParams.update({'axes.titlesize': 12, 'axes.labelsize': 12, 'legend.fontsize': 12})
 st.set_page_config(layout="centered")
 ```
 
-- **What It Does**: Loads toolkits (libraries) and sets up the app’s appearance.
+- **Functionality**: Initializes the application by importing required libraries and configuring visualization settings.
 - **Details**:
-  - Imports Streamlit for the web app, Pandas for data tables, NumPy for math, Matplotlib for graphs, SciPy’s `curve_fit` for model fitting, and `io`, `base64`, `xlsxwriter` for saving files.
-  - Sets graph fonts to Times New Roman, size 12, for professional plots.
-  - Centers the app’s layout in the browser.
-- **Why**: Prepares the app, like gathering tools and setting up a workspace.
-- **Analogy**: Like stocking a kitchen with appliances and setting the table.
+  - Imports libraries for web interface (Streamlit), data handling (Pandas), numerical operations (NumPy), plotting (Matplotlib), curve fitting (SciPy), and file export (XlsxWriter, io, base64).
+  - Sets plot fonts to Times New Roman (12-point) for professional presentation.
+  - Configures the Streamlit app to use a centered layout.
+- **Purpose**: Establishes the foundation for data processing and visualization, ensuring consistent and professional output.
 
 ---
 
-## 7. Code Walkthrough: Creating the Sidebar and Inputs
+## 7. Code Analysis: User Interface Setup
 
-**Code Block: Sidebar and File Upload**
+**Code Block: Sidebar and Input Controls**
 
 ```python
 with st.sidebar:
     st.markdown("""
-    <h3 style='font-family: Times New Roman; font-size: 18px;'>📄 Upload File Format</h3>
+    <h3 style='font-family: Times New Roman; font-size: 18px;'>📄 Input File Specifications</h3>
     <p style='font-family: Times New Roman; font-size: 14px;'>
         Upload an Excel file (.xlsx) with the following columns:
         <ul>
-            <li><b>AminoAcid</b>: Name or identifier of the amino acid (e.g., ALA, GLY).</li>
-            <li><b>Frequency</b>: CPMG frequency in Hz (numeric).</li>
+            <li><b>AminoAcid</b>: Amino acid identifier (e.g., ALA, GLY).</li>
+            <li><b>Frequency</b>: CPMG frequency (Hz, numeric).</li>
             <li><b>R2eff</b>: Effective relaxation rate (s⁻¹, numeric).</li>
-            <li><b>R2eff_error</b>: Error in R2eff (s⁻¹, numeric).</li>
+            <li><b>R2eff_error</b>: Uncertainty in R2eff (s⁻¹, numeric).</li>
         </ul>
-        Ensure the file has a header row and no missing values in these columns.
+        The file must include a header row and no missing values.
     </p>
     """, unsafe_allow_html=True)
     st.number_input("Enter B0 value (MHz):", min_value=0.0, value=81.0, step=0.1, key="B0_input")
-uploaded_file = st.file_uploader("\U0001F4C1 Upload Excel file with columns: AminoAcid, Frequency, R2eff, R2eff_error", type="xlsx")
+uploaded_file = st.file_uploader("📁 Upload Excel file (.xlsx)", type="xlsx")
 ```
 
-- **What It Does**: Creates a sidebar with instructions and input fields for the user.
+- **Functionality**: Creates a sidebar for user guidance and input collection.
 - **Details**:
-  - Adds a sidebar with a formatted guide (using HTML) explaining the Excel file format.
-  - Provides a box to enter B0 (default 81 MHz, decimals allowed).
-  - Adds a button to upload an Excel file with specific columns.
-- **Why**: Guides users to provide data and B0, like a user manual.
-- **Analogy**: Like a restaurant menu explaining how to order.
+  - Displays formatted instructions for the Excel file format using HTML for styling.
+  - Provides a numeric input field for B0 (default: 81 MHz).
+  - Offers a file uploader for Excel files containing CPMG data.
+- **Purpose**: Ensures users provide correctly formatted data and parameters, enhancing usability.
 
 ---
 
-## 8. Code Walkthrough: Displaying Titles and Equations
+## 8. Code Analysis: Displaying Application Content
 
-**Code Block: App Title and Model Equations**
+**Code Block: Titles and Model Equations**
 
 ```python
 st.markdown("""
@@ -195,7 +220,7 @@ R_{2,\mathrm{eff}}(\nu_\mathrm{CPMG}) = R_2
 """)
 st.markdown("""
     <h2 style="font-family: 'Times New Roman'; font-size: 20px;">
-        Luz–Meiboom Equation
+        Luz–Meiboom Model
     </h2>
 """, unsafe_allow_html=True)
 st.latex(r"""
@@ -203,7 +228,7 @@ R_{2,\mathrm{eff}}(\nu_\mathrm{CPMG}) = R_2 + \frac{\Phi}{k_\mathrm{ex}} \left(1
 """)
 st.markdown("""
     <h2 style="font-family: 'Times New Roman'; font-size: 20px;">
-        Carver–Richards Equation
+        Carver–Richards Model
     </h2>
 """, unsafe_allow_html=True)
 st.latex(r"""
@@ -224,31 +249,28 @@ st.latex(r"""
 \zeta = 4\pi \Delta\delta B_0 (k_{AB} - k_{BA})
 """)
 st.markdown(
-    "<i>Carver–Richards fit uses full four-parameter expression including $k_{AB}$, $k_{BA}$, and $\Delta \delta$. No-Exchange model assumes constant $R_2$.</i>", unsafe_allow_html=True)
+    "<i>The Carver–Richards model uses a four-parameter expression (R₂, k_AB, k_BA, Δδ). The No-Exchange model assumes a constant R₂.</i>", unsafe_allow_html=True)
 st.markdown("""
     <h3 style='font-family: Times New Roman; font-size: 16px;'>References</h3>
     <p style='font-family: Times New Roman; font-size: 14px;'>
-        1. Luz, Z.; Meiboom, S. (1963) Nuclear Magnetic Resonance study of the protolysis of trimethylammonium ion in aqueous solution—order of the reaction with respect to solvent. <i>J. Chem. Phys.</i>, 39, 366–370.<br>
-        2. Carver, J. P.; Richards, R. E. (1972) General 2-site solution for chemical exchange produced dependence of T2 upon Carr-Purcell pulse separation. <i>J. Magn. Reson.</i>, 6, 89-96.
+        1. Luz, Z.; Meiboom, S. (1963). Nuclear Magnetic Resonance study of the protolysis of trimethylammonium ion in aqueous solution—order of the reaction with respect to solvent. <i>J. Chem. Phys.</i>, 39, 366–370.<br>
+        2. Carver, J. P.; Richards, R. E. (1972). General two-site solution for chemical exchange produced dependence of T2 upon Carr-Purcell pulse separation. <i>J. Magn. Reson.</i>, 6, 89–96.
     </p>
 """, unsafe_allow_html=True)
 ```
 
-- **What It Does**: Shows the app’s title, model equations, and references in the app.
+- **Functionality**: Displays the application title, model equations, and references.
 - **Details**:
-  - Displays “CPMG Fitting Tool” as a heading.
-  - Shows the No-Exchange equation (R₂,eff = R₂).
-  - Shows the Luz–Meiboom equation (see Section 5 image).
-  - Shows the Carver–Richards equations (see Section 5 image).
-  - Adds a note comparing models and cites original research.
-- **Why**: Introduces the tool and explains the science to users.
-- **Analogy**: Like a textbook chapter explaining the math.
+  - Renders the tool’s title and model headings in Times New Roman.
+  - Uses LaTeX to display mathematical equations for each model.
+  - Provides references to foundational papers.
+- **Purpose**: Introduces the scientific framework, ensuring users understand the models being applied.
 
 ---
 
-## 9. Code Walkthrough: Defining Model Functions
+## 9. Code Analysis: Model Definitions
 
-**Code Block: Model Calculations**
+**Code Block: Model Functions**
 
 ```python
 B0 = st.session_state.B0_input
@@ -272,30 +294,26 @@ def carver_richards(v_cpmg, R2, k_AB, k_BA, delta_ppm, B0=st.session_state.B0_in
     return R2 + kex / 2 - 2 * v_cpmg * np.log(lambda_val)
 ```
 
-- **What It Does**: Defines the math for the three models (No-Exchange, Luz–Meiboom, Carver–Richards).
+- **Functionality**: Defines mathematical functions for the three CPMG models.
 - **Details**:
-  - Stores the user’s B0 value in `B0`.
-  - `no_exchange`: Returns a constant R₂ for all frequencies, modeling no shape switching.
-  - `luz_meiboom`: Calculates R₂,eff for fast switching using R₂, kₑₓ, phi, and B0, with NumPy’s math tools (e.g., `np.tanh`).
-  - `carver_richards`: Computes R₂,eff for complex dynamics using multiple parameters and intermediate calculations (ψ, ζ, etc.).
-- **Why**: Sets up the equations to match data, like defining the rules for a game.
-- **Analogy**: Like writing recipes for different dishes (simple to complex).
-- **Images**:
-  - ![Luz–Meiboom Equation](images/luz_meiboom_model.jpg)
-  - ![Carver–Richards Equation](images/carver_richards_model.jpg)
+  - Stores the user-provided B0 value.
+  - `no_exchange`: Returns a constant R₂ array for all ν_CPMG values.
+  - `luz_meiboom`: Computes R₂,eff for fast exchange using R₂, kₑₓ, φ, and B0.
+  - `carver_richards`: Calculates R₂,eff for general exchange with intermediate terms (ψ, ζ, etc.).
+- **Purpose**: Implements the mathematical models for curve fitting, enabling accurate parameter estimation.
 
 ---
 
-## 10. Code Walkthrough: Loading and Processing Data
+## 10. Code Analysis: Data Loading and Validation
 
-**Code Block: Reading Data and Checking Format**
+**Code Block: Data Processing**
 
 ```python
 if uploaded_file:
     df = pd.read_excel(uploaded_file)
     required_cols = {"AminoAcid", "Frequency", "R2eff", "R2eff_error"}
     if not required_cols.issubset(df.columns):
-        st.error("❌ Excel file must contain: AminoAcid, Frequency, R2eff, R2eff_error")
+        st.error("❌ Excel file must contain columns: AminoAcid, Frequency, R2eff, R2eff_error")
         st.stop()
     amino_acids = df['AminoAcid'].unique()
     st.markdown(f"<div style='font-family: Times New Roman; font-size: 14px;'>✅ Loaded data for <b>{len(amino_acids)}</b> amino acid(s).</div>", unsafe_allow_html=True)
@@ -305,22 +323,19 @@ if uploaded_file:
     all_tables = []
 ```
 
-- **What It Does**: Loads the Excel file and prepares for analysis.
+- **Functionality**: Loads and validates the uploaded Excel file.
 - **Details**:
-  - Checks if a file was uploaded.
-  - Reads the file into a table (`df`) using Pandas.
-  - Ensures the table has required columns (AminoAcid, Frequency, R2eff, R2eff_error).
-  - Shows an error and stops if columns are missing.
-  - Lists unique amino acids and shows how many were found.
-  - Creates empty lists for results (fits, phi values, graphs, tables).
-- **Why**: Gets the NMR data ready, like checking ingredients before cooking.
-- **Analogy**: Like opening a spreadsheet and making sure it has the right columns.
+  - Reads the Excel file into a Pandas DataFrame.
+  - Verifies the presence of required columns.
+  - Extracts unique amino acids and displays a confirmation message.
+  - Initializes lists to store fitting results, phi values, plots, and tables.
+- **Purpose**: Ensures data integrity before analysis, preventing errors in downstream processing.
 
 ---
 
-## 11. Code Walkthrough: Fitting Models and Plotting
+## 11. Code Analysis: Model Fitting and Visualization
 
-**Code Block: Processing Each Amino Acid**
+**Code Block: Processing Amino Acids and Plotting**
 
 ```python
     for aa in amino_acids:
@@ -331,17 +346,15 @@ if uploaded_file:
         ax.errorbar(x, y, yerr=yerr, fmt='o', color='black', capsize=4, label="Data")
 ```
 
-- **What It Does**: Starts analyzing each amino acid and sets up a graph.
+- **Functionality**: Processes data for each amino acid and initializes a plot.
 - **Details**:
-  - Loops through each amino acid.
-  - Filters the table for one amino acid’s data.
-  - Gets frequencies (`x`), relaxation rates (`y`), and errors (`yerr`).
-  - Shows a heading for the amino acid.
-  - Creates a new graph and plots data points with error bars (black circles).
-- **Why**: Prepares to fit models and show results for each amino acid.
-- **Analogy**: Like focusing on one dish in a meal.
+  - Filters data for a specific amino acid.
+  - Extracts frequency, R₂,eff, and error values.
+  - Displays a heading for the amino acid.
+  - Creates a plot with data points and error bars.
+- **Purpose**: Prepares data for model fitting and visualization.
 
-**Code Block: Fitting No-Exchange Model**
+**Code Block: No-Exchange Model Fitting**
 
 ```python
         chi_noex = chi_luz = chi_cr = np.inf
@@ -358,19 +371,15 @@ if uploaded_file:
             st.error(f"❌ No-Exchange fit failed: {e}")
 ```
 
-- **What It Does**: Fits the No-Exchange model and plots it.
+- **Functionality**: Fits the No-Exchange model and plots the result.
 - **Details**:
-  - Initializes chi-squared (fit quality) and parameters as “bad” (infinity or not-a-number).
-  - Tries fitting the No-Exchange model to data using `curve_fit`, guessing R₂ = 10.
-  - Calculates error margins and fitted values.
-  - Computes chi-squared to measure fit quality.
-  - Plots the fit as a green line.
-  - Shows an error if fitting fails.
-- **Why**: Tests if the simple model matches the data.
-- **Analogy**: Like trying a simple recipe and checking if it tastes right.
-- **Image**: ![Sample Fit Curve](images/sample_fit_curve.jpg) _(Shows data points and model fits, including the green No-Exchange line.)_
+  - Initializes fit parameters and chi-squared values.
+  - Uses SciPy’s `curve_fit` to optimize R₂, with bounds to ensure non-negative values.
+  - Calculates fit errors and chi-squared for fit quality.
+  - Plots the fitted curve in green.
+- **Purpose**: Evaluates the simplest model for baseline comparison.
 
-**Code Block: Fitting Luz–Meiboom and Carver–Richards**
+**Code Block: Luz–Meiboom and Carver–Richards Fitting**
 
 ```python
         try:
@@ -392,22 +401,19 @@ if uploaded_file:
             st.error(f"❌ Carver–Richards fit failed: {e}")
 ```
 
-- **What It Does**: Fits the Luz–Meiboom and Carver–Richards models and plots them.
+- **Functionality**: Fits the Luz–Meiboom and Carver–Richards models and plots results.
 - **Details**:
-  - Fits Luz–Meiboom with guesses for R₂, kₑₓ, phi, and plots a red line.
-  - Saves phi values for later.
-  - Fits Carver–Richards with guesses for four parameters, allowing more tries (`maxfev`), and plots a blue dashed line.
-  - Calculates errors and chi-squared for each.
-  - Shows errors if fitting fails.
-- **Why**: Tests more complex models for better fits.
-- **Analogy**: Like trying fancier recipes to match the taste.
-- **Image**: ![Sample Fit Curve](images/sample_fit_curve.jpg) _(Shows red Luz–Meiboom and blue Carver–Richards lines.)_
+  - Fits Luz–Meiboom with initial guesses for R₂, kₑₓ, and φ, plotting in red.
+  - Stores phi values for summary analysis.
+  - Fits Carver–Richards with guesses for four parameters, allowing extended iterations, plotting in blue (dashed).
+  - Handles fitting errors gracefully.
+- **Purpose**: Tests complex models to capture dynamic behavior.
 
 ---
 
-## 12. Code Walkthrough: Displaying Graphs and Parameters
+## 12. Code Analysis: Visualizing and Tabulating Results
 
-**Code Block: Finalizing and Showing Graphs**
+**Code Block: Finalizing Plots**
 
 ```python
         ax.set_xlabel("Frequency (Hz)")
@@ -423,19 +429,14 @@ if uploaded_file:
         plt.close(fig)
 ```
 
-- **What It Does**: Labels and shows the graph, then saves it.
+- **Functionality**: Completes and displays plots for each amino acid.
 - **Details**:
-  - Labels x-axis (Frequency) and y-axis (R₂,eff).
-  - Sets the title with the amino acid name.
-  - Adds a legend and grid for clarity.
-  - Displays the graph in the app.
-  - Saves the graph as a PNG and stores it for downloading.
-  - Closes the graph to save memory.
-- **Why**: Shows the data and model fits visually.
-- **Analogy**: Like hanging a finished painting.
-- **Image**: ![Sample Fit Curve](images/sample_fit_curve.jpg)
+  - Labels axes and adds a title and legend.
+  - Displays the plot in the app and saves it as a PNG.
+  - Closes the plot to free memory.
+- **Purpose**: Provides visual comparison of data and model fits.
 
-**Code Block: Showing Parameter Tables**
+**Code Block: Parameter Tables**
 
 ```python
         col1, col2, col3 = st.columns(3)
@@ -467,20 +468,17 @@ if uploaded_file:
                 st.markdown("_Fit failed._")
 ```
 
-- **What It Does**: Displays tables of fitted parameters for each model.
+- **Functionality**: Displays parameter tables for each model.
 - **Details**:
-  - Splits the app into three columns for tables.
-  - Shows No-Exchange parameters (R₂), Luz–Meiboom parameters (R₂, kₑₓ, φ), and Carver–Richards parameters (R₂, k_AB, k_BA, Δδ, kₑₓ).
-  - Calculates kₑₓ (k_AB + k_BA) for Carver–Richards.
+  - Organizes output into three columns.
+  - Creates tables for No-Exchange (R₂), Luz–Meiboom (R₂, kₑₓ, φ), and Carver–Richards (R₂, k_AB, k_BA, Δδ, kₑₓ) parameters.
   - Saves tables as CSV files.
-  - Shows “Fit failed” if there’s an error.
-- **Why**: Presents the model results clearly.
-- **Analogy**: Like displaying ingredient lists for each dish.
-- **Image**: ![Sample Fit Parameters](images/sample_fit_parameters.jpg) _(Shows tables with parameters like R₂, kₑₓ, φ.)_
+- **Purpose**: Presents quantitative results for scientific interpretation.
+- **Image**: ![Sample Fit Curve](images/sample_fit_curve.jpg) _(Shows red Luz–Meiboom and blue Carver–Richards lines.)_
 
 ---
 
-## 13. Code Walkthrough: Summarizing and Downloading Results
+## 13. Code Analysis: Summarizing and Exporting Results
 
 **Code Block: Model Comparison**
 
@@ -500,17 +498,14 @@ if uploaded_file:
         all_tables.append(("model_comparison_summary.txt", summary_table.to_csv(index=False)))
 ```
 
-- **What It Does**: Compares models and shows a summary table.
+- **Functionality**: Summarizes model fit quality.
 - **Details**:
-  - Finds the model with the smallest chi-squared (best fit).
-  - Labels it as “No-Exchange,” “Luz–Meiboom,” or “Carver–Richards.”
-  - Adds results to a summary list.
-  - Displays a table of chi-squared values, highlighting the best fit in green.
-  - Saves the table as a CSV.
-- **Why**: Shows which model best matches the data.
-- **Analogy**: Like a scorecard picking the best dish.
+  - Identifies the model with the lowest chi-squared value.
+  - Creates a table comparing chi-squared values across models, highlighting the best fit.
+  - Saves the summary as a CSV.
+- **Purpose**: Facilitates model selection based on fit quality.
 
-**Code Block: Phi Values Plot**
+**Code Block: Phi Values Visualization**
 
 ```python
     if phi_summary:
@@ -522,7 +517,7 @@ if uploaded_file:
         ax_phi.set_ylabel("Phi value")
         ax_phi.set_title("Phi values (Luz–Meiboom)")
         ax_phi.grid(True)
-        st.markdown("<h4 style='font-family: Times New Roman; font-size: 18px;'>📊 Summary of ϕ values (Luz–Meiboom)</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='font-family: Times New Roman; font-size: 18px;'>📊 Summary of φ Values (Luz–Meiboom)</h4>", unsafe_allow_html=True)
         st.pyplot(fig_phi)
         buf_phi = io.BytesIO()
         fig_phi.savefig(buf_phi, format="png")
@@ -532,18 +527,14 @@ if uploaded_file:
         all_tables.append(("phi_summary.txt", summary_df.to_csv(index=False)))
 ```
 
-- **What It Does**: Creates a graph of phi values from the Luz–Meiboom model.
+- **Functionality**: Plots phi values from the Luz–Meiboom model.
 - **Details**:
-  - Checks if phi values exist.
-  - Creates a table of phi values, sorted by amino acid.
-  - Plots phi values with error bars (black circles) and a red line.
-  - Labels axes and adds a title and grid.
-  - Shows the graph and saves it as a PNG.
-  - Saves the phi table as a CSV.
-- **Why**: Shows trends in phi values across amino acids.
-- **Analogy**: Like a chart showing ingredient amounts.
+  - Creates a table of phi values sorted by residue.
+  - Generates a plot with error bars and a connecting line.
+  - Saves the plot and table for export.
+- **Purpose**: Visualizes trends in conformational exchange parameters.
 
-**Code Block: Downloading Results**
+**Code Block: Result Export**
 
 ```python
     if all_plots or all_tables:
@@ -561,51 +552,39 @@ if uploaded_file:
         st.download_button(label="Download All Tables as Excel", data=output, file_name="all_tables.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 ```
 
-- **What It Does**: Adds buttons to download graphs and tables.
+- **Functionality**: Provides download options for results.
 - **Details**:
-  - Checks if there are results to download.
-  - Adds buttons for each graph (PNG) and table (CSV).
-  - Combines all tables into one Excel file with multiple sheets.
-  - Adds a button to download the Excel file.
-- **Why**: Lets users save results for reports.
-- **Analogy**: Like a takeaway counter for dishes.
+  - Offers buttons to download individual plots (PNG) and tables (CSV).
+  - Combines all tables into a single Excel file with multiple sheets.
+- **Purpose**: Enables users to save results for further analysis or publication.
 
 ---
 
-## 14. Demo: Seeing the Tool in Action
+## 14. Demonstration: Tool Operation
 
-**Steps**:
+**Procedure**:
 
-1. **Run the App**: Use `streamlit run app.py` locally or a hosted version.
-2. **Upload File**: Load a sample Excel file with columns:
-   - AminoAcid (e.g., ALA, GLY)
-   - Frequency (e.g., 100, 200 Hz)
-   - R2eff (e.g., 20.5, 22.1 s⁻¹)
-   - R2eff_error (e.g., 0.2, 0.3 s⁻¹)
-3. **Enter B0**: Type 81 MHz in the sidebar.
-4. **View Results**: Show graphs (like the sample fit curve), parameter tables (like the sample fit parameters), and the phi value graph.
-5. **Download**: Click to download a graph or the Excel file.
+1. **Launch**: Run the app locally with `streamlit run app.py` or access a hosted version.
+2. **Upload**: Load an Excel file with columns: `AminoAcid`, `Frequency`, `R2eff`, `R2eff_error`.
+3. **Input B0**: Enter the magnetic field strength (e.g., 81 MHz).
+4. **View Results**: Observe plots, parameter tables, and phi value summaries.
+5. **Export**: Download results as PNG or Excel files.
 
-**Key Point**: No coding needed—just upload and click!
+**Sample Data** (`sample_data.xlsx`):
 
-**Preparation**:
+```
+AminoAcid,Frequency,R2eff,R2eff_error
+ALA,100,20.5,0.2
+ALA,200,20.3,0.3
+GLY,100,22.1,0.25
+GLY,200,21.9,0.35
+```
 
-- Create `sample_data.xlsx`:
-  ```
-  AminoAcid,Frequency,R2eff,R2eff_error
-  ALA,100,20.5,0.2
-  ALA,200,20.3,0.3
-  GLY,100,22.1,0.25
-  GLY,200,21.9,0.35
-  ```
-- Install libraries: `pip install streamlit pandas numpy matplotlib scipy xlsxwriter`.
-- Test the app with the sample file.
-- Keep the demo short (2–3 minutes).
+**Setup**:
 
-**Images**:
+- Install dependencies: `pip install streamlit pandas numpy matplotlib scipy xlsxwriter`.
 
-- ![Sample Fit Curve](images/sample_fit_curve.jpg) _(Shows the graph output.)_
-- ![Sample Fit Parameters](images/sample_fit_parameters.jpg) _(Shows the parameter tables.)_
+**Key Feature**: The tool requires no coding, making it accessible to all researchers.
 
 ---
 
@@ -613,17 +592,14 @@ if uploaded_file:
 
 **Benefits**:
 
-- **Easy**: No coding required—just upload and get results.
-- **Fast**: Automates complex math, saving hours.
-- **Clear**: Graphs and tables make results easy to use in research.
-- **Impact**: Helps study protein dynamics for biology and medicine.
+- **Accessibility**: User-friendly interface eliminates coding barriers.
+- **Efficiency**: Automates complex calculations, reducing analysis time.
+- **Clarity**: Provides clear visualizations and tabular outputs for scientific reporting.
+- **Impact**: Enhances understanding of protein dynamics, supporting advancements in biology and drug development.
 
-**Python’s Role**: Turns complex math into a simple app, like a lab assistant.
+**Python’s Contribution**: Python’s robust libraries and clear syntax enable the development of a powerful, automated tool for NMR data analysis.
 
 **Conclusion**:
-
-- Built during my IIT Guwahati internship, this tool shows Python’s power in science.
-- Thanks to my mentors, team, and you for listening!
-- Questions? Want to see the demo again?
+Developed during my internship at IIT Guwahati, this CPMG Fitting Tool demonstrates the synergy of Python programming and NMR spectroscopy. I express gratitude to my mentor Dr. Himanshu Singh and all the lab colleagues for their support. 
 
 ---
